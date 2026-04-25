@@ -1,0 +1,62 @@
+#!/bin/bash
+set -e
+
+echo "[1/6] Installation dépendances"
+apt update
+apt install -y lib32gcc-s1 lib32stdc++6 zlib1g:i386 wget tar unzip
+
+echo "[2/6] Création dossiers"
+mkdir -p /SERVEUR
+mkdir -p /SERVEUR/steam
+mkdir -p /SERVEUR/ac-serveur
+mkdir -p /SERVEUR/web/linux
+
+echo "[3/6] Installation SteamCMD"
+cd /SERVEUR/steam
+wget -q http://media.steampowered.com/installer/steamcmd_linux.tar.gz
+tar -xvzf steamcmd_linux.tar.gz -C /SERVEUR/steam
+
+echo "[4/6] Installation serveur Assetto Corsa"
+./steamcmd.sh +login anonymous \
++force_install_dir /SERVEUR/ac-serveur \
++app_update 302550 validate \
++quit
+
+echo "[5/6] Installation Server Manager"
+cd /SERVEUR/web
+wget -q https://github.com/JustaPenguin/assetto-server-manager/releases/download/v1.7.9/server-manager_v1.7.9.zip
+unzip -o server-manager_v1.7.9.zip -d /SERVEUR/web
+
+sed -i 's|install_path: assetto|install_path: /SERVEUR/ac-serveur|' /SERVEUR/web/linux/config.yml
+
+echo "[6/6] Service systemd"
+cat > /etc/systemd/system/server-manager.service <<EOF
+[Unit]
+Description=Assetto Server Manager
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/SERVEUR/web/linux/
+ExecStart=/bin/bash /SERVEUR/web/linux/script.sh
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+cat > /SERVEUR/web/linux/script.sh <<EOF
+#!/bin/bash
+exec /SERVEUR/web/linux/server-manager
+EOF
+
+chmod +x /SERVEUR/web/linux/script.sh
+
+systemctl daemon-reload
+systemctl enable server-manager.service
+systemctl start server-manager.service
+
+echo "[OK] Installation terminée"
+echo "URL : http://localhost:8772"
+echo "Login : admin / servermanager"

@@ -1,0 +1,9 @@
+Package: ns-ac
+Version: 1.0
+Section: games
+Priority: optional
+Architecture: amd64
+Depends: lib32gcc-s1, lib32stdc++6, wget, tar, unzip
+Maintainer: Nathan Sorre <nathan.sorre@ik.me>
+Description: Serveur Assetto Corsa dédié
+ Installe et configure un serveur Assetto Corsa avec SteamCMD.
