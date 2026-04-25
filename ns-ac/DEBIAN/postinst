@@ -1,9 +1,8 @@
 #!/bin/bash
 set -e
 
-echo "[1/6] Installation dépendances"
+echo "[1/6] Mise à jours"
 apt update
-apt install -y lib32gcc-s1 lib32stdc++6 zlib1g:i386 wget tar unzip
 
 echo "[2/6] Création dossiers"
 mkdir -p /SERVEUR
